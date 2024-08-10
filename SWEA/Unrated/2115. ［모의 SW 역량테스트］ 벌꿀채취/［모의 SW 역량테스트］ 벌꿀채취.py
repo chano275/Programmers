@@ -1,40 +1,72 @@
-import itertools
+def part(arr, idx, cur):
+    global max_part
+
+    if idx == m:
+       if sum(cur) > c:
+           return
+       elif cur == []: return
+       else:
+           cur_s = 0
+           for cur_i in cur:
+               cur_s += cur_i ** 2
+           max_part = max(cur_s, max_part)
+           return
+
+    # print(arr, idx, cur)
+    part(arr, idx + 1, cur + [arr[idx]])
+    part(arr, idx + 1, cur)
 
 
-# 수 리스트 들어오면 각 리스트 더해서 sum
-def cal_square_sum(num_list):
-    if sum(num_list) > c: return 0  # 범위 넘으면 컷 (가지치기)
-    return sum(num ** 2 for num in num_list)
+def comb(arr, idx, cur):
+    global comb_ans
 
+    if len(cur) == 2 or idx == len(arr):
+        if len(cur) == 2:
+            if cur[0][1] == cur[1][1]:  # 동일한 행
+                if cur[0][2] + m - 1 < cur[1][2] or cur[1][2] + m - 1 < cur[0][2]:  # 두 부분집합이 겹치지 않을 때
+                    comb_ans.append(cur[0][0] + cur[1][0])
+            else:
+                comb_ans.append(cur[0][0] + cur[1][0])
+        return
 
-def cal_max_honey(honey_list):
-    max_honey = 0
-    for select_cnt in range(1, m + 1):  # 부분집합의 조합을 구한다
-        comb = itertools.combinations(honey_list, select_cnt)  # select_cnt 개수만큼의 조합
-        comb_list = list(map(cal_square_sum, comb))  # 위의 함수 통해서 연산
-        max_honey = max(max_honey, max(comb_list))  # 여태까지 조합 중 가장 이익이 높은 것들로 갱신
-    return max_honey
+    comb(arr, idx + 1,  cur  + [arr[idx]])
+    comb(arr, idx + 1,  cur)
 
 
 T = int(input())
 for tc in range(1, T+1):
-    n, m, c = list(map(int, input().split()))    # 벌통 정사각 배열의 가로 / 한마리당 채취 가능 개수 // 채취 가능한 꿀의 최대 양
+    n, m, c = list(map(int, input().split()))
+    # n : 가로세로
+    # m : 벌통의 개수 ( 네모 가로 길이 ) << 2개임
+    # c : 한개의 벌통에서 최대로 가능한 값의 합 //
+
+    # 한개의 네모에서 부분집합 > c 넘으면 return 하는 재귀 / 선택 하고 안하고
+
     honey = [list(map(int, input().split())) for _ in range(n)]
 
-    # 벌 두마리가 가로로 채취 가능 개수를 채우며 최대 양 근접하게 / 최대로 했을 때에 각 칸의 제곱들의 합 중 최대
+    # n - m + 1 만큼 이동 가능 ( 4 - 2 + 1 >> for문 0 1 2 만큼 시작 좌표 움직이며 )
 
-    max_sum = 0
+    ans = []
+
+    # for oneline in honey:
+    #     print(oneline)
 
     for i in range(n):
-        for j in range(n-m + 1):
-            fst_honey_list = honey[i][j:j+m] # 일꾼 1이 고른 리스트 > 이 list에서 부분집합 구하고, 그중 최대 이익을 구하겠다
-            fst_max = cal_max_honey(fst_honey_list)
-            for snd_i in range(i, n):
-                for snd_j in range(0, n - m + 1):
-                    if i == snd_i and snd_j < j + m:continue # 같은 행
-                    snd_honey_list = honey[snd_i][snd_j:snd_j + m]  # 일꾼 1이 고른 리스트 > 이 list에서 부분집합 구하고, 그중 최대 이익을 구하겠다
-                    snd_max = cal_max_honey(snd_honey_list)
+        for move in range(n-m+1):
+            max_part = -float('inf')
+            part(honey[i][0 + move : m + move], 0, [])
+            ans.append((max_part, i, move)) # i로 세로줄 / move로 0+move ~ m+move-1 까지 idx 일치 확인 가능
 
-                    max_sum = max(max_sum, fst_max + snd_max)
-                    
-    print(f'#{tc} {max_sum}')
+    # 겹치면 안되네;
+    ans.sort(reverse=True)
+
+    comb_ans = []
+    comb(ans, 0, [])
+    # print('################################')
+    comb_ans.sort(reverse=True)
+
+    # print(comb_ans)
+
+    print(f'#{tc} {comb_ans[0]}')
+
+    # break
