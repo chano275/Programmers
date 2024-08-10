@@ -1,42 +1,42 @@
-num_dict = {'A':10, 'B':11, 'C':12, 'D':13, 'E':14, 'F':15}
-
 T = int(input())
 for tc in range(1, T+1):
     n, k = map(int, input().split())
-    number = (input())
+    number = input()
 
-    four_numbers = set()
-    loop = n // 4
+    number_set = set()
 
-    for _ in range(loop):
-        # print(number)
-        for i in range(4):
-            four_numbers.add(number[i * loop : (i + 1) * loop])
-        # 0 ~ 9 + A ~ F
-        number = number[-1] + number[0:len(number) - 1]
+    leng = n//4
 
-    four_numbers = list(four_numbers)
+    for _ in range(n):
+        for i in range(leng):
+            number_set.add(number[leng * i : leng * (i+1)])
+        number = number[1:n] + number[0]
 
-    for check_num in range(len(four_numbers)):
-#        print(check_num)
-        rev = four_numbers[check_num][::-1]
-#        print('*****************')
-#        print(rev)
-        sum_temp = 0
-        for j in range(len(rev)):
-#            print(j, rev[j])
-            # print(sum_temp)
-            if 'A' <= rev[j] <= 'Z':  sum_temp += (16 ** j) * num_dict[rev[j]]
-            else:  sum_temp += (16 ** j) * int(rev[j])
-#            print(sum_temp)
-        four_numbers[check_num] = sum_temp
-#        print('*****************')
-    # print(check_num)
+    number_set = list(number_set)
 
-    four_numbers.sort(reverse=True)
-    print(f'#{tc} {four_numbers[k-1]}')
+    numbers = ['0','1','2','3','4','5','6','7','8','9']
+    chars = []
+    lineup = []
 
-#        print(zar)
-#    print(list(four_numbers))
-#    numberstep = n/4
+    for _str in number_set:
+        temp_sum = 0
+        str_ = _str[::-1]
+        for j in range(len(_str)): # j : 0 1 2
+            if (str_[j]) in numbers:
+                temp_sum += 16**j * int(str_[j])  # 숫자 :
 
+            else:  # 영어
+                if str_[j] == 'A':temp_sum += 16**j * 10
+                elif str_[j] == 'B':temp_sum += 16**j * 11
+                elif str_[j] == 'C':temp_sum += 16**j * 12
+                elif str_[j] == 'D':temp_sum += 16**j * 13
+                elif str_[j] == 'E':temp_sum += 16**j * 14
+                elif str_[j] == 'F':temp_sum += 16**j * 15
+
+        lineup.append(temp_sum)
+
+    # print(lineup)
+
+    lineup.sort(reverse=True)
+
+    print(f'#{tc} {lineup[k-1]}')
