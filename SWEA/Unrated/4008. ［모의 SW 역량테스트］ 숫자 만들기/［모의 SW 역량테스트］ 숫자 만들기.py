@@ -1,73 +1,48 @@
-def operate(a, _op, b):
-    if _op == '+': return a+b
-    elif _op == '-': return a-b
-    elif _op == '*': return a*b
-    elif _op == '/': return int(a/b)
+# import sys
+# sys.stdin = open('sample_input (8).txt')
 
 
-def dfs(arr_str, op_val):
-    if len(arr_str) == sum(op):
-        perm_set.add(arr_str)
+def dfs(arr, idx, cur):
+    if len(cur) == n-1 or idx == n:
+        operator_set.add(cur)
         return
 
-    if op_val[0] > 0:
-        _op = op_val[:]
-        _op[0] -= 1
-        dfs(arr_str + operator[0], _op)
+    for i in range(4):
+        if arr[i] != 0:
+            temp_arr1 = arr[:]
+            temp_arr1[i] -= 1
+            dfs(temp_arr1, idx + 1, cur + operator[i])
 
-    if op_val[1] > 0:
-        _op = op_val[:]
-        _op[1] -= 1
-        dfs(arr_str + operator[1], _op)
 
-    if op_val[2] > 0:
-        _op = op_val[:]
-        _op[2] -= 1
-        dfs(arr_str + operator[2], _op)
+def calculate(front_num, opera, final_num):
+    if opera == '+':return front_num + final_num
+    elif opera == '-':return front_num - final_num
+    elif opera == '*':return front_num * final_num
+    elif opera == '/':return int(front_num / final_num)
 
-    if op_val[3] > 0:
-        _op = op_val[:]
-        _op[3] -= 1
-        dfs(arr_str + operator[3], _op)
 
 
 T = int(input())
 operator = ['+', '-', '*', '/']
-
-
 for tc in range(1, T+1):
-    n = int(input())  # 숫자 갯수
-    op = list(map(int, input().split()))  # 연산자 배열 ( 갯수 : n - 1 )
-    numbers = list(map(int, input().split()))  # 숫자 배열
-    max_op, min_op = -float('inf'), float('inf')
-    perm_set = set()
+    n = int(input())
+    operator_list = list(map(int, input().split()))  # + - * /
+    numbers = list(map(int, input().split()))
 
-    #print(op)
+    operator_set = set()
+    dfs(operator_list, 0, '')
 
-    dfs('', op)
+    # numbers 는 그대로 / set list 만 다르게
+    # // 같은 경우에 -가 나오면 내림 연산이 되므로, / 후 int 연산 진행
 
-    #print(perm_set)
-
-    change_to_list = list(perm_set)
-
-    op_list = []
-
-    for chk in change_to_list:
-        temp = []
-        for inp in chk:
-            temp.append(inp)
-        op_list.append(temp)
-
-    for op_i in op_list:
+    ans_max, ans_min = -float('inf'), float('inf')
+    for chk in list(operator_set):
         temp = numbers[0]
-        _i = 1
-        for do in op_i:
-            temp = operate(temp, do, numbers[_i])
-            _i += 1
-        max_op = max(max_op, temp)
-        min_op = min(min_op, temp)
+        numbers_cnt = 0
+        for op in chk:
+            numbers_cnt += 1
+            temp = calculate(temp, op, numbers[numbers_cnt])
+        ans_max, ans_min = max(ans_max, temp), min(ans_min, temp)
 
-    ans = max_op - min_op
-    print(f'#{tc} {ans}')
-
-    #break
+    print(f'#{tc} {ans_max - ans_min}')
+    
