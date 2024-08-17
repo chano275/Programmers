@@ -1,48 +1,44 @@
-# import sys
-# sys.stdin = open('sample_input (8).txt')
-
-
 def dfs(arr, idx, cur):
-    if len(cur) == n-1 or idx == n:
-        operator_set.add(cur)
+    if idx == n-1 or len(cur) == n - 1:
+        if len(cur) == n - 1:
+            oppo_set.add(cur)
         return
 
     for i in range(4):
         if arr[i] != 0:
-            temp_arr1 = arr[:]
-            temp_arr1[i] -= 1
-            dfs(temp_arr1, idx + 1, cur + operator[i])
+            _arr = arr[:]
+            _arr[i] -= 1
+            dfs(_arr, idx + 1, cur + operators[i])
+
+    return
 
 
-def calculate(front_num, opera, final_num):
-    if opera == '+':return front_num + final_num
-    elif opera == '-':return front_num - final_num
-    elif opera == '*':return front_num * final_num
-    elif opera == '/':return int(front_num / final_num)
-
-
-
+operators = ['+', '-', '*', '/']
 T = int(input())
-operator = ['+', '-', '*', '/']
 for tc in range(1, T+1):
     n = int(input())
-    operator_list = list(map(int, input().split()))  # + - * /
+    oppo_numbers = list(map(int, input().split()))
     numbers = list(map(int, input().split()))
+    oppo_set = set()
 
-    operator_set = set()
-    dfs(operator_list, 0, '')
+    dfs(oppo_numbers, 0, '')
+    oppo_list = list(oppo_set)
 
-    # numbers 는 그대로 / set list 만 다르게
-    # // 같은 경우에 -가 나오면 내림 연산이 되므로, / 후 int 연산 진행
+    ans_min, ans_max = float('inf'), -1 * float('inf')
 
-    ans_max, ans_min = -float('inf'), float('inf')
-    for chk in list(operator_set):
+
+    for str_operator in oppo_list:
         temp = numbers[0]
-        numbers_cnt = 0
-        for op in chk:
-            numbers_cnt += 1
-            temp = calculate(temp, op, numbers[numbers_cnt])
-        ans_max, ans_min = max(ans_max, temp), min(ans_min, temp)
+        cnt = 1
+        for oper in str_operator:
+            if oper == '+':temp = temp + numbers[cnt]
+            elif oper == '-':temp = temp - numbers[cnt]
+            elif oper == '*':temp = temp * numbers[cnt]
+            elif oper == '/':temp = int(temp / numbers[cnt])
+            cnt += 1
+        ans_min, ans_max = min(ans_min, temp), max(ans_max, temp)
 
     print(f'#{tc} {ans_max - ans_min}')
-    
+
+
+    # break
