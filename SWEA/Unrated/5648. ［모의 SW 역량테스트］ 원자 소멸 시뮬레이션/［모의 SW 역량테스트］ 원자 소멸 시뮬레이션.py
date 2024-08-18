@@ -1,41 +1,40 @@
-dir_dict = {
-    '0': (0, 0.5),
-    '1': (0, -0.5),
-    '2': (-0.5, 0),
-    '3': (0.5, 0)
-}
+# 0 상 / 1 하 / 2 좌 / 3 우
+dxy = [(0,0.5), (0,-0.5), (-0.5,0), (0.5,0)]
 T = int(input())
 for tc in range(1, T+1):
     n = int(input())
-    atoms = [list(map(int, input().split())) for _ in range(n)]
-    # x, y, dir, k(eng)
+    atoms_list = [list(map(int, input().split())) for _ in range(n)]
+    # x y dir k
+
     ans = 0
 
-    atoms_dict = {}
-    for atom in atoms:
-        atoms_dict[(atom[0], atom[1])] = [float(atom[0]), float(atom[1]), atom[2], atom[3]]
-    # print(atoms_dict)
-    while atoms_dict:
+    first_dict = {}
+    for single in atoms_list:
+        first_dict[(single[0], single[1])] = [(single[2], single[3])]
+
+    while first_dict:  # 다 비면 out
         temp_dict = {}
-        for chk in atoms_dict.values():  # chk : 0 : x  /  1 : y  /  2 : dir  /  3 : [k]
-            moved_x, moved_y = chk[0] + dir_dict[str(chk[2])][0], chk[1] + dir_dict[str(chk[2])][1]
-            if moved_x > 1000 or moved_x < -1000 or moved_y > 1000 or moved_y < -1000:continue
+        for k, v in first_dict.items():
+            cx, cy = k
+            dx, dy = dxy[v[0][0]]
+            nx, ny = cx + dx, cy + dy
 
-            key = (moved_x, moved_y)
-
-
-            if key in temp_dict:
-                temp_dict[key].append(chk[3])
+            if nx < -1000 or ny < -1000 or nx > 1000 or ny >= 1000: continue
+            # 범위 밖으로 안나가면 ok
+            if (nx, ny) in temp_dict:
+                temp_dict[(nx, ny)].append(v[0]) # v[0]이 이미 튜플이야
             else:
-                temp_dict[key] = [moved_x, moved_y, chk[2], chk[3]]
+                temp_dict[(nx, ny)] = v
 
-        atoms_dict = {}
+        first_dict = {}
+        # temp dict에 이동시킨 거 넣었음. 만나는거 체크
         for k, v in temp_dict.items():
-            if len(v) > 4:
-                ans += sum(v[3:])
+            if len(v) > 1:
+                for chk in v:
+                    ans += chk[1]
             else:
-                atoms_dict[k] = v
-
+                first_dict[k] = v
 
     print(f'#{tc} {ans}')
-    # break
+
+#     break
