@@ -1,58 +1,50 @@
 
+dxy = {
+    1:(-1,0),
+    2:(1,0),
+    3:(0,-1),
+    4:(0,1)
+}
 
-dxy = [(1,0), (0,1), (-1,0), (0,-1)]
+
 T = int(input())
 for tc in range(1, T+1):
     n, m, k = list(map(int, input().split()))
-    micros_list = [list(map(int, input().split())) for _ in range(k)]
+    xy_n_d = [list(map(int ,input().split())) for _ in range(k)]
 
     first_dict = {}
-    # (x, y) = [ (수, 방향) , ...]
-    for temp in micros_list:
-        first_dict[(temp[0], temp[1])] = [(temp[2], temp[3])]
+    for temp in xy_n_d:        first_dict[(temp[0], temp[1])] = [(temp[2], dxy[temp[3]])]  # 미생물 값 / dir
 
     for _ in range(m):
+        # print('##########################')
+        # print(first_dict)
         second_dict = {}
         for k, v in first_dict.items():
-            cx, cy = k
-            if v[0][1] == 1: dx, dy = dxy[2]
-            elif v[0][1] == 2: dx, dy = dxy[0]
-            elif v[0][1] == 3: dx, dy = dxy[3]
-            elif v[0][1] == 4: dx, dy = dxy[1]
-            nx, ny = cx + dx, cy + dy
+            nx, ny = k[0] + v[0][1][0], k[1] + v[0][1][1]
+            new_key = (nx, ny)
 
-            # if nx < 0 or nx >= n or ny < 0 or ny >= n: continue
-            if nx == 0 or nx == n-1 or ny == 0 or ny == n-1:  # 벽 부딫힘
-                # 겹치는거 생각 안해도 괜찮음
-                if v[0][1] == 1:second_dict[(nx, ny)] = [(v[0][0] // 2, 2)]
-                elif v[0][1] == 2:second_dict[(nx, ny)] = [(v[0][0] // 2, 1)]
-                elif v[0][1] == 3:second_dict[(nx, ny)] = [(v[0][0] // 2, 4)]
-                elif v[0][1] == 4:second_dict[(nx, ny)] = [(v[0][0] // 2, 3)]
+            if nx == 0 or ny == 0 or nx == n-1 or ny == n-1:  # 빨간줄이면 돌리기
+                second_dict[new_key] = [(v[0][0] // 2, (-1 * v[0][1][0], -1 * v[0][1][1]))]
+
             else:
-                # 벽 안부딫힘 :
-                if (nx, ny) in second_dict:
-                    second_dict[(nx, ny)].append((v[0][0], v[0][1]))
-                else:
-                    second_dict[(nx, ny)] = v
+                if new_key in second_dict:                second_dict[new_key].append(v[0])
+                else:second_dict[new_key] = v
 
         first_dict = {}
-
-
+        # print(second_dict)
         for k, v in second_dict.items():
             if len(v) > 1:
-                _max, _sum, _dir = 0, 0, 0
+                temp_sum, temp_max, temp_dir = 0, 0, (0, 0)
+
                 for chk in v:
-                    _sum += chk[0]
+                    temp_sum += chk[0]
+                    checker = temp_max
+                    temp_max = max(temp_max, chk[0])
+                    if checker != temp_max:temp_dir = chk[1]
 
-                    temp = _max
-                    _max = max(_max, chk[0])
-                    if temp != _max:
-                        _dir = chk[1]
+                first_dict[k] = [(temp_sum, temp_dir)]
 
-                first_dict[k] = [(_sum, _dir)]
-
-            else:
-                first_dict[k] = v
+            else:first_dict[k] = v
 
     ans = 0
     for k, v in first_dict.items():
@@ -60,4 +52,3 @@ for tc in range(1, T+1):
 
     print(f'#{tc} {ans}')
 
-    # break
