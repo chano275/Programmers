@@ -1,98 +1,65 @@
-"""
-0, n-1 이면 연결됨. 해당 좌표의 i, j 튜플로 set 에 in  >  지나가도 될지 판단할때 in하면 컨티뉴로 
-visited 도 true로 
-1이 연결된 좌표에서 배열의 값이 0인 부분으로 쭉~ 가면서 visited 체크 
+def dfs(cxy_idx, visited_list, core, l_len):
 
-최대한 많은 코어  << 이 조건 만족하면 최소의 전선 길이 
+    #print(cxy_idx)
 
-"""
-
-
-def dfs(_visited, _start_point, idx, _core, _line):
-    # 하나 찍었거나 이번꺼의 방향 모두 갔는데 못찍는거다?
-    # start_point 다음꺼로 넘기기
-
-    _cx, _cy = _start_point[idx][0], _start_point[idx][1]
-
-    if _start_point[idx][0] == -1:  # _cx == -1 / 다 돌았음
-        ans_core.append(_core)
-        ans_line.append(_line)
+    if cxy_idx == len(cxy):  # 다 찍진 않았어도 끝까지 도달?
+        result.append((core, l_len))
         return
 
-    if _cx == 0 or _cx == n - 1 or _cy == 0 or _cy == n - 1:
-        dfs(_visited, _start_point, idx + 1, _core + 1, _line)
+    cx, cy = cxy[cxy_idx]
+
+    if cx == 0 or cy == 0 or cx == n-1 or cy == n-1:  # 전기 흐르는 가장자리에 위치
+        dfs(cxy_idx + 1, visited_list, core + 1, l_len)
         return
 
-    for i in range(5):
-        if i == 4:dfs(_visited, _start_point, idx + 1, _core, _line)
+    # 4방향 확인
+    for dx, dy in [(1, 0), (0, 1), (-1, 0), (0, -1), (0, 0)]:
+        temp_visited = []
+        nx, ny = cx, cy
 
-        flag = 0
+        if dx == 0 and dy == 0:  dfs(cxy_idx + 1, visited_list, core, l_len)  # 가지 안뻗고 바로 넘기기
+        else:
+            flag_b = 0
+            while 1:
+                nx += dx
+                ny += dy
+#                print(nx, ny)
 
-        temp_visited = [row[:] for row in _visited]
-        nx, ny = _cx, _cy
-        temp_nx, temp_ny = nx, ny
-        temp_line = _line
+                if nx < 0 or ny < 0 or nx >= n or ny >= n:break
 
-        if i == 0 or i == 2:  # 위아래 체크
-            while nx != chk[i]:  # 끝 아니면 계속 가
-                nx += dxy[i][0]
-                ny += dxy[i][1]
-                if exi[nx][ny] == 1 or _visited[nx][ny] == 1: # 나가야 하면 flag 찍고 나가
-                    flag = 1
+                if (nx, ny) in visited_list:
+                    flag_b = 1
                     break
+                else:                    temp_visited.append((nx, ny))
 
-            if flag == 0:
-                # 끝까지 갈 수 있다? 다시 돌면서 [ visited 찍고 / line 재서 + ]
-                # 이 부분을 복사로 해서 넘기면 여러 분기로 갈라진 visited를 특별히 신경쓰지 않아도 됨
-                while temp_nx != chk[i]:
-                    temp_nx += dxy[i][0]
-                    temp_ny += dxy[i][1]
-                    temp_visited[temp_nx][temp_ny] = 1
-                    temp_line += 1
-                dfs(temp_visited, _start_point, idx + 1, _core + 1, temp_line)
+            if flag_b == 0:
+                dfs(cxy_idx + 1, visited_list + temp_visited, core + 1, l_len + len(temp_visited))
+            else:continue
 
-        elif i==1 or i==3:  # 좌, 우 갈때 ( 아래 구성은 위와 동일 )
-            while ny != chk[i]:
-                nx += dxy[i][0]
-                ny += dxy[i][1]
-                if exi[nx][ny] == 1 or _visited[nx][ny] == 1:
-                    flag = 1
-                    break
-
-            if flag == 0:
-                while temp_ny != chk[i]:
-                    temp_nx += dxy[i][0]
-                    temp_ny += dxy[i][1]
-                    temp_visited[temp_nx][temp_ny] = 1
-                    temp_line += 1
-                dfs(temp_visited, _start_point, idx + 1, _core + 1, temp_line)
+    return
 
 
 T = int(input())
-for tc in range(1, T + 1):
-    n = int(input())  # 숫자 갯수
-    exi = [list(map(int, input().split())) for _ in range(n)]
-    visited = [row[:] for row in exi]
+for tc in range(1, T+1):
+    n = int(input())  # N*N 엑시노스
+    maps = [list(map(int, input().split())) for _ in range(n)]
 
-    start_point = []
+    visited, cxy = [], []
     for i in range(n):
         for j in range(n):
-            if exi[i][j] == 1:  # 왼오 위아래 쭉 dfs 찍으면 좋을거같은데
-                start_point.append((i, j))
-    start_point.append((-1, -1))
+            if maps[i][j] == 1:
+                cxy.append((i, j))
+                visited.append((i, j))
 
-    dxy = [(1, 0), (0, 1), (-1, 0), (0, -1), (0,0)]
-    chk = [n - 1, n - 1, 0, 0]
-    core, line = 0, 0
-    ans_core, ans_line = [], []
-    dfs(exi, start_point, 0, core, line)
+    result = []
+    dfs(0, visited, 0, 0)
 
-    check = max(ans_core)
-    ans = float('inf')
-    for i in range(len(ans_core)):
-        if ans_core[i] == check:
-            ans = min(ans, ans_line[i])
+    max_core = -float('inf')
+    min_line = float('inf')
+    for r in result:
+        max_core = max(max_core, r[0])
+    for r in result:
+        if r[0] == max_core:
+            min_line = min(min_line, r[1])
 
-    print(f'#{tc} {ans}')
-
-    # break
+    print(f'#{tc} {min_line}')
