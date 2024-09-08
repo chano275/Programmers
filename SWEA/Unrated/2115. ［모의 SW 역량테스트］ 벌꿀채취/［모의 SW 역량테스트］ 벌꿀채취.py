@@ -1,72 +1,33 @@
-def part(arr, idx, cur):
-    global max_part
-
-    if idx == m:
-       if sum(cur) > c:
-           return
-       elif cur == []: return
-       else:
-           cur_s = 0
-           for cur_i in cur:
-               cur_s += cur_i ** 2
-           max_part = max(cur_s, max_part)
-           return
-
-    # print(arr, idx, cur)
-    part(arr, idx + 1, cur + [arr[idx]])
-    part(arr, idx + 1, cur)
-
-
-def comb(arr, idx, cur):
-    global comb_ans
-
-    if len(cur) == 2 or idx == len(arr):
-        if len(cur) == 2:
-            if cur[0][1] == cur[1][1]:  # 동일한 행
-                if cur[0][2] + m - 1 < cur[1][2] or cur[1][2] + m - 1 < cur[0][2]:  # 두 부분집합이 겹치지 않을 때
-                    comb_ans.append(cur[0][0] + cur[1][0])
-            else:
-                comb_ans.append(cur[0][0] + cur[1][0])
-        return
-
-    comb(arr, idx + 1,  cur  + [arr[idx]])
-    comb(arr, idx + 1,  cur)
-
+from itertools import combinations
 
 T = int(input())
 for tc in range(1, T+1):
     n, m, c = list(map(int, input().split()))
-    # n : 가로세로
-    # m : 벌통의 개수 ( 네모 가로 길이 ) << 2개임
-    # c : 한개의 벌통에서 최대로 가능한 값의 합 //
 
-    # 한개의 네모에서 부분집합 > c 넘으면 return 하는 재귀 / 선택 하고 안하고
+    maps = [list(map(int, input().split())) for _ in range(n)]
 
-    honey = [list(map(int, input().split())) for _ in range(n)]
+    # 각 구역의 최대 수익을 계산하는 함수
+    def calculate_profit(honey):
+        max_profit = 0
+        # 가능한 모든 조합을 구해 이익을 계산
+        for i in range(1, len(honey) + 1):
+            for comb in combinations(honey, i):
+                if sum(comb) <= c:
+                    max_profit = max(max_profit, sum([x ** 2 for x in comb]))
+        return max_profit
 
-    # n - m + 1 만큼 이동 가능 ( 4 - 2 + 1 >> for문 0 1 2 만큼 시작 좌표 움직이며 )
-
-    ans = []
-
-    # for oneline in honey:
-    #     print(oneline)
-
+    # 각 줄에서 선택 가능한 벌통의 최대 수익 계산
+    profits = []
     for i in range(n):
-        for move in range(n-m+1):
-            max_part = -float('inf')
-            part(honey[i][0 + move : m + move], 0, [])
-            ans.append((max_part, i, move)) # i로 세로줄 / move로 0+move ~ m+move-1 까지 idx 일치 확인 가능
+        for j in range(n - m + 1):  # 선택할 벌통의 범위 설정
+            honey = maps[i][j:j + m]  # m개의 벌통 선택
+            profit = calculate_profit(honey)
+            profits.append((profit, (i, j, j + m - 1)))  # 수익과 위치 저장
 
-    # 겹치면 안되네;
-    ans.sort(reverse=True)
+    max_total_profit = 0
+    # 두 벌통이 겹치지 않도록 조합을 선택
+    for (profit1, (x1, y1_start, y1_end)), (profit2, (x2, y2_start, y2_end)) in combinations(profits, 2):
+        if x1 != x2 or y1_end < y2_start:  # 다른 줄에 있거나, 같은 줄이라도 겹치지 않을 때
+            max_total_profit = max(max_total_profit, profit1 + profit2)
 
-    comb_ans = []
-    comb(ans, 0, [])
-    # print('################################')
-    comb_ans.sort(reverse=True)
-
-    # print(comb_ans)
-
-    print(f'#{tc} {comb_ans[0]}')
-
-    # break
+    print(f'#{tc} {max_total_profit}')
