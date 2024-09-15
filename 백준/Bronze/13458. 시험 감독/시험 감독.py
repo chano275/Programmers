@@ -15,5 +15,4 @@ for i in range(n):
     else:
         ans += ((target // c) + 1)
 
-
 print(ans)
