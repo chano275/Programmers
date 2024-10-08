@@ -31,5 +31,4 @@ for i in range(n):
 
 print(len(ans))
 ans = sorted(ans)
-for a in ans:
-    print(a)
+for a in ans: print(a)
