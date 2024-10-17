@@ -1,0 +1,6 @@
+SELECT COUNT(ID) AS FISH_COUNT
+FROM FISH_INFO
+WHERE YEAR(TIME) = 2021
+
+
+# 감기약 먹어서 잠시 기절하겠읍니다.. ㅠㅠ
