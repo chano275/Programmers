@@ -40,14 +40,6 @@ for height in range(min_num, max_num + 1):
             if maps[i][j] <= height:
                 rain_maps[i][j] = 1  # 물로 가득 참
 
-    if height == min_num:  # 맨 처음에만 실행
-        temp_sum = 0
-        for r in rain_maps:
-            temp_sum += sum(r)
-        if temp_sum == 0:
-            ans = 1
-            break
-
     visited = [[False] * n for _ in range(n)]
 
     for i in range(n):
