@@ -20,8 +20,6 @@ while s != 0:
     s -= 1
     temp_dict = {}
     queue = deque()
-    
-    # 바이러스 번호 순서대로 처리하도록 수정
     for k in sorted(start_dict.keys()):
         v = start_dict[k]
         if len(v) == 1:
@@ -35,21 +33,21 @@ while s != 0:
     while queue:
         val, (cx, cy) = queue.popleft()
         for dx, dy in [(1,0), (0,1), (-1,0), (0,-1)]:
-            nx, ny = cx+dx, cy+dy
+            nx, ny = cx+dx, cy+dy 
             if nx < 0 or nx >= n or ny < 0 or ny >= n:
                 continue
             if (nx, ny) in visited:
                 continue
             if maps[nx][ny] != 0:
-                continue
+                continue  # 이미 바이러스가 있으면 넘어감
+
             maps[nx][ny] = val
             visited.add((nx, ny))
-            # 다음 단계에 확산될 바이러스 위치 저장
             if val in temp_dict:
                 temp_dict[val].append((nx, ny))
             else:
                 temp_dict[val] = [(nx, ny)]
 
     start_dict = temp_dict
-
+    
 print(maps[x-1][y-1])
