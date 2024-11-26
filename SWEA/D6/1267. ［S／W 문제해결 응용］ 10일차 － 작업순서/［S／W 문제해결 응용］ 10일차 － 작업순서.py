@@ -2,50 +2,43 @@ from collections import deque
 
 
 def wisang():
-    ans = []
+    visited = []
     queue = deque()
-
-    ## 맨 처음
-    for i in range(1, len(zinip)):  # 1부터 v까지
-        if zinip[i] == 0:
+    for i in range(1, len(zin_ip)):
+        if zin_ip[i] == 0:
             queue.append(i)
-            vertex_set.discard(i)
-
+            visited.append(i)
 
     while queue:
         cur = queue.popleft()
-        ans.append(cur)
+        for elem in graph[cur]:
+            zin_ip[elem] -= 1
 
-        for element in graph[cur]:  zinip[element] -= 1
-
-        for i in range(1, len(zinip)):  # 1부터 v까지
-            if zinip[i] == 0 and i in vertex_set:  #
+        for i in range(1, len(zin_ip)):
+            if zin_ip[i] == 0 and i not in visited:
                 queue.append(i)
-                vertex_set.discard(i)
+                visited.append(i)
 
-    return ans
+    return visited
+
 
 
 
 t = 10
-for tc in range(1, t+1):
+for tc in range(1, t + 1):
     v, e = map(int, input().split())
-    edge_list = list(map(int, input().split()))
+    original_edge = list(map(int, input().split()))
 
-    zinip = [0] * (v + 1)               # 0 idx 안쓸것
-    vertex_set = set()
-    for i in range(1, v+1):vertex_set.add(i)
+    zin_ip = [0] * (v+1)
+    graph = [[0] * (v+1) for _ in range(v+1)]
 
+    for i in range(e):  # original_edge[2*i] > original_edge[2*i + 1]
+        zin_ip[original_edge[2*i + 1]] += 1
+        graph[original_edge[2*i]].append(original_edge[2*i + 1])
 
-    graph = [[] for _ in range(v + 1)]  # 0행 안쓸 것
-    for i in range(e):
-        left, right = edge_list[2 * i], edge_list[2 * i + 1]
-        graph[left].append(right)
-        zinip[right] += 1
-
-    ret = wisang()
-
-    print(f'#{tc}', end = ' ')
-    for elem in ret:
+    print(f'#{tc} ', end = '')
+    for elem in wisang():
         print(elem, end = ' ')
     print('')
+
+
